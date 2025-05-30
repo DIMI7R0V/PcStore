@@ -6,11 +6,11 @@ namespace PCStore.BL.Interfaces
 {
     public interface IStoreService
     {
-        GetAllProductsFromManufacturerResponce
+        Task<GetAllProductsFromManufacturerResponce>
             GetAllProductsByManufacturer(GetAllProductsFromManufacturerRequest request);
 
-        int CheckProductCount(int input);
+        Task<int> CheckProductCount(int input);
 
-        List<FullProductWithManufacturerView> GetFullInformation();
+        Task<List<FullProductWithManufacturerView>> GetFullInformation();
     }
 }

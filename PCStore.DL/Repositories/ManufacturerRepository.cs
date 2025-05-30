@@ -16,12 +16,20 @@ namespace PCStore.DL.Repositories
         public ManufacturerRepository(IOptionsMonitor<MongoDBConfiguration> mongoConfig, ILogger<ManufacturerRepository> logger)
         {
             _logger = logger;
+
+            if (string.IsNullOrEmpty(mongoConfig?.CurrentValue?.ConnectionString) || string.IsNullOrEmpty(mongoConfig?.CurrentValue?.DatabaseName))
+            {
+                _logger.LogError("MongoDb configuration is missing");
+
+                throw new ArgumentNullException("MongoDb configuration is missing");
+            }
+
             var client = new MongoClient(mongoConfig.CurrentValue.ConnectionString);
             var database = client.GetDatabase(mongoConfig.CurrentValue.DatabaseName);
             _manufacturers = database.GetCollection<Manufacturer>($"{nameof(Manufacturer)}s");
         }
 
-        public void AddManufacturer(Manufacturer manufacturer)
+        public async Task AddManufacturer(Manufacturer manufacturer)
         {
             if (manufacturer == null)
             {
@@ -30,10 +38,10 @@ namespace PCStore.DL.Repositories
             }
 
             manufacturer.Id = Guid.NewGuid().ToString();
-            _manufacturers.InsertOne(manufacturer);
+            await _manufacturers.InsertOneAsync(manufacturer);
         }
 
-        public bool DeleteManufacturer(string id)
+        public async Task<bool> DeleteManufacturer(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -41,11 +49,11 @@ namespace PCStore.DL.Repositories
                 return false;
             }
 
-            var result = _manufacturers.DeleteOne(m => m.Id == id);
+            var result = await _manufacturers.DeleteOneAsync(m => m.Id == id);
             return result.DeletedCount > 0;
         }
 
-        public Manufacturer? GetManufacturer(string id)
+        public async Task<Manufacturer?> GetManufacturer(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -53,15 +61,15 @@ namespace PCStore.DL.Repositories
                 return null;
             }
 
-            return _manufacturers.Find(m => m.Id == id).FirstOrDefault();
+            return await _manufacturers.Find(m => m.Id == id).FirstOrDefaultAsync();
         }
 
-        public List<Manufacturer> GetAllManufacturers()
+        public async Task<List<Manufacturer>> GetAllManufacturers()
         {
-            return _manufacturers.Find(m => true).ToList();
+            return await _manufacturers.Find(m => true).ToListAsync();
         }
 
-        public bool UpdateManufacturer(Manufacturer manufacturer)
+        public async Task<bool> UpdateManufacturer(Manufacturer manufacturer)
         {
             if (manufacturer == null || string.IsNullOrWhiteSpace(manufacturer.Id))
             {
@@ -70,7 +78,7 @@ namespace PCStore.DL.Repositories
             }
 
             var filter = Builders<Manufacturer>.Filter.Eq(m => m.Id, manufacturer.Id);
-            var updateResult = _manufacturers.ReplaceOne(filter, manufacturer);
+            var updateResult = await _manufacturers.ReplaceOneAsync(filter, manufacturer);
 
             return updateResult.ModifiedCount > 0;
         }

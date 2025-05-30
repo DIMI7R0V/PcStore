@@ -19,29 +19,29 @@ namespace PCStore.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("GetById")]
-        public IActionResult GetProduct(string id)
+        public async Task<IActionResult> GetProduct(string id)
         {
-            var product = _productService.GetProduct(id);
+            var product = await _productService.GetProduct(id);
             if (product == null) return NotFound("Product not found.");
             return Ok(product);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpPost("Add")]
-        public IActionResult AddProduct([FromBody] Product product)
+        public async Task<IActionResult> AddProduct([FromBody] Product product)
         {
             
-                _productService.AddProduct(product);
-                return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+            await _productService.AddProduct(product);
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
             
         }
 
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("DeleteProduct")]
-        public IActionResult DeleteProduct(string id)
+        public async Task<IActionResult> DeleteProduct(string id)
         {
-            var result = _productService.DeleteProduct(id);
+            var result = await _productService.DeleteProduct(id);
 
             if (result)
                 return NoContent();
@@ -53,9 +53,9 @@ namespace PCStore.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPost("Update")]
-        public IActionResult UpdateProduct([FromBody] Product product)
+        public async Task<IActionResult> UpdateProduct([FromBody] Product product)
         {
-            var result = _productService.UpdateProduct(product);
+            var result = await _productService.UpdateProduct(product);
             if (result)
                 return NoContent();
             return NotFound($"Product with ID {product.Id} not found.");
@@ -63,9 +63,9 @@ namespace PCStore.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("GetAllProducts")]
-        public IActionResult GetAllProducts()
+        public async Task<IActionResult> GetAllProducts()
         {
-            var products = _productService.GetAllProducts();
+            var products = await _productService.GetAllProducts();
             return Ok(products);
         }
 
