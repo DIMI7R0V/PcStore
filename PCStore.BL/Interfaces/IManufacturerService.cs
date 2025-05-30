@@ -4,14 +4,14 @@ namespace PCStore.BL.Interfaces
 {
     public interface IManufacturerService
     {
-        void AddManufacturer(Manufacturer manufacturer);
+        Task AddManufacturer(Manufacturer manufacturer);
 
-        bool DeleteManufacturer(string id);
+        Task<bool> DeleteManufacturer(string id);
 
-        bool UpdateManufacturer(Manufacturer manufacturer);
+        Task<bool> UpdateManufacturer(Manufacturer manufacturer);
 
-        Manufacturer? GetManufacturer(string id);
+        Task<Manufacturer?> GetManufacturer(string id);
 
-        List<Manufacturer> GetAllManufacturers();
+        Task<List<Manufacturer>> GetAllManufacturers();
     }
 }

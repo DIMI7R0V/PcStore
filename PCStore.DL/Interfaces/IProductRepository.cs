@@ -4,16 +4,16 @@ namespace PCStore.DL.Interfaces
 {
     public interface IProductRepository
     {
-        void AddProduct(Product product);
+        Task AddProduct(Product product);
 
-        bool DeleteProduct(string id);
+        Task<bool> DeleteProduct(string id);
 
-        bool UpdateProduct(Product product);
+        Task<bool> UpdateProduct(Product product);
 
-        Product? GetProduct(string id);
+        Task<Product?> GetProduct(string id);
 
-        List<Product> GetAllProducts();
+        Task<List<Product>> GetAllProducts();
 
-        List<Product> GetAllProductsByManufacturer(string manufacturerId);
+        Task<List<Product>> GetAllProductsByManufacturer(string manufacturerId);
     }
 }

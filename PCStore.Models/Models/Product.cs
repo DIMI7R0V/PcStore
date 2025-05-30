@@ -2,10 +2,10 @@
 {
     public class Product
     {
-        public string Id { get; set; } 
+        public string Id { get; set; } = string.Empty;
 
         public string ProductName { get; set; } = string.Empty;
 
-        public string ManufacturerId { get; set; }
+        public string ManufacturerId { get; set; } = string.Empty;
     }
 }

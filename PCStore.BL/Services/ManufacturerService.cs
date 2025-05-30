@@ -17,7 +17,7 @@ namespace PCStore.BL.Services
             _logger = logger;
         }
 
-        public void AddManufacturer(Manufacturer manufacturer)
+        public async Task AddManufacturer(Manufacturer manufacturer)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace PCStore.BL.Services
                     return;
                 }
 
-                _manufacturerRepository.AddManufacturer(manufacturer);
+                await _manufacturerRepository.AddManufacturer(manufacturer);
                 _logger.LogInformation("Manufacturer {ManufacturerName} added successfully.", manufacturer.Name);
             }
             catch (Exception ex)
@@ -36,7 +36,7 @@ namespace PCStore.BL.Services
             }
         }
 
-        public bool DeleteManufacturer(string id)
+        public async Task<bool> DeleteManufacturer(string id)
         {
             try
             {
@@ -46,14 +46,14 @@ namespace PCStore.BL.Services
                     return false;
                 }
 
-                var manufacturer = _manufacturerRepository.GetManufacturer(id);
+                var manufacturer = await _manufacturerRepository.GetManufacturer(id);
                 if (manufacturer == null)
                 {
                     _logger.LogWarning("Manufacturer with ID {ManufacturerId} not found for deletion.", id);
                     return false;
                 }
 
-                _manufacturerRepository.DeleteManufacturer(id);
+                await _manufacturerRepository.DeleteManufacturer(id);
                 _logger.LogInformation("Manufacturer with ID {ManufacturerId} deleted successfully.", id);
                 return true; 
             }
@@ -64,7 +64,7 @@ namespace PCStore.BL.Services
             }
         }
 
-        public bool UpdateManufacturer(Manufacturer manufacturer)
+        public async Task<bool> UpdateManufacturer(Manufacturer manufacturer)
         {
             try
             {
@@ -74,14 +74,14 @@ namespace PCStore.BL.Services
                     return false; 
                 }
 
-                var existingManufacturer = _manufacturerRepository.GetManufacturer(manufacturer.Id);
+                var existingManufacturer = await _manufacturerRepository.GetManufacturer(manufacturer.Id);
                 if (existingManufacturer == null)
                 {
                     _logger.LogWarning("Manufacturer with ID {ManufacturerId} not found for update.", manufacturer.Id);
                     return false; 
                 }
 
-                _manufacturerRepository.UpdateManufacturer(manufacturer);
+                await _manufacturerRepository.UpdateManufacturer(manufacturer);
                 _logger.LogInformation("Manufacturer {ManufacturerName} updated successfully.", manufacturer.Name);
                 return true; 
             }
@@ -92,7 +92,7 @@ namespace PCStore.BL.Services
             }
         }
 
-        public Manufacturer? GetManufacturer(string id)
+        public async Task<Manufacturer?> GetManufacturer(string id)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace PCStore.BL.Services
                     return null;
                 }
 
-                var manufacturer = _manufacturerRepository.GetManufacturer(id);
+                var manufacturer = await _manufacturerRepository.GetManufacturer(id);
                 if (manufacturer == null)
                 {
                     _logger.LogWarning("Manufacturer with ID {ManufacturerId} not found.", id);
@@ -117,11 +117,11 @@ namespace PCStore.BL.Services
             }
         }
 
-        public List<Manufacturer> GetAllManufacturers()
+        public async Task<List<Manufacturer>> GetAllManufacturers()
         {
             try
             {
-                var manufacturers = _manufacturerRepository.GetAllManufacturers();
+                var manufacturers = await _manufacturerRepository.GetAllManufacturers();
                 if (manufacturers != null || manufacturers.Count != 0)
                 {
                     return manufacturers;

@@ -19,7 +19,7 @@ namespace PCStore.BL.Services
             _logger = logger;
         }
 
-        public int CheckProductCount(int input)
+        public async Task<int> CheckProductCount(int input)
         {
             if (input < 0)
             {
@@ -27,13 +27,13 @@ namespace PCStore.BL.Services
                 return 0;
             }
 
-            var productCount = _productService.GetAllProducts();
+            var productCount = await _productService.GetAllProducts();
             var totalCount = productCount.Count + input;
 
             return totalCount;
         }
 
-        public GetAllProductsFromManufacturerResponce GetAllProductsByManufacturer(GetAllProductsFromManufacturerRequest request)
+        public async Task<GetAllProductsFromManufacturerResponce> GetAllProductsByManufacturer(GetAllProductsFromManufacturerRequest request)
         {
             var response = new GetAllProductsFromManufacturerResponce();
 
@@ -43,41 +43,39 @@ namespace PCStore.BL.Services
                 return response;
             }
 
-            _logger.LogInformation("Retrieving manufacturer");
-            var manufacturer = _manufacturerService.GetManufacturer(request.ManufacturerId);
+            _logger.LogInformation("Retrieving manufacturer...");
+            var manufacturer = await _manufacturerService.GetManufacturer(request.ManufacturerId);
 
             if (manufacturer == null)
             {
-                _logger.LogWarning("Manufacturer with ID not found.");
+                _logger.LogWarning("Manufacturer with ID {ManufacturerId} not found.", request.ManufacturerId);
                 return response;
             }
-            else
-            {
-                response.Manufacturer = manufacturer;
-                _logger.LogInformation("Manufacturer Not Found!");
-            }
 
-            _logger.LogInformation("Retrieving products for manufacturer.");
-            var products = _productService.GetAllProductsByManufacturer(request.ManufacturerId);
+            response.Manufacturer = manufacturer;
+            _logger.LogInformation("Manufacturer found.");
+
+            _logger.LogInformation("Retrieving products for manufacturer...");
+            var products = await _productService.GetAllProductsByManufacturer(request.ManufacturerId);
 
             if (products == null || products.Count == 0)
             {
-                _logger.LogWarning("No products found for manufacturer.");
+                _logger.LogWarning("No products found for manufacturer with ID {ManufacturerId}.", request.ManufacturerId);
             }
             else
             {
                 response.Products = products;
-                _logger.LogInformation("Retrieved products for manufacturer.");
+                _logger.LogInformation("Retrieved {Count} products for manufacturer.", products.Count);
             }
 
             return response;
         }
 
-        public List<FullProductWithManufacturerView> GetFullInformation()
+        public async Task<List<FullProductWithManufacturerView>> GetFullInformation()
         {
             var result = new List<FullProductWithManufacturerView>();
 
-            var manufacturers = _manufacturerService.GetAllManufacturers();
+            var manufacturers = await _manufacturerService.GetAllManufacturers();
 
             if (manufacturers == null || !manufacturers.Any())
             {
@@ -87,7 +85,7 @@ namespace PCStore.BL.Services
 
             foreach (var manufacturer in manufacturers)
             {
-                var products = _productService.GetAllProductsByManufacturer(manufacturer.Id);
+                var products = await _productService.GetAllProductsByManufacturer(manufacturer.Id);
 
                 var manufacturerView = new FullProductWithManufacturerView
                 {

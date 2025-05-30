@@ -18,46 +18,53 @@ namespace PCStore.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("GetById")]
-        public IActionResult GetManufacturer(string id)
+        public async Task<IActionResult> GetManufacturer(string id)
         {
-            var manufacturer = _manufacturerService.GetManufacturer(id);
+            var manufacturer = await _manufacturerService.GetManufacturer(id);
             if (manufacturer == null)
             {
                 return NotFound("Manufacturer not found.");
             }
             return Ok(manufacturer);
         }
+
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpPost("Add")]
-        public IActionResult AddManufacturer(Manufacturer manufacturer)
+        public async Task<IActionResult> AddManufacturer([FromBody] Manufacturer manufacturer)
         {
-            _manufacturerService.AddManufacturer(manufacturer);
-            return Ok("Manufacturer added successfully.");
+            await _manufacturerService.AddManufacturer(manufacturer);
+            return CreatedAtAction(nameof(GetManufacturer), new { id = manufacturer.Id }, manufacturer);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpDelete("Delete")]
-        public IActionResult DeleteManufacturer(string id)
+        public async Task<IActionResult> DeleteManufacturer(string id)
         {
-            _manufacturerService.DeleteManufacturer(id);
-            return Ok("Manufacturer deleted successfully.");
+            var result = await _manufacturerService.DeleteManufacturer(id);
+
+            if (result)
+                return NoContent();
+            return NotFound($"Manufacturer with ID {id} not found.");
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpPost("Update")]
-        public IActionResult UpdateManufacturer(Manufacturer manufacturer)
+        public async Task<IActionResult> UpdateManufacturer([FromBody] Manufacturer manufacturer)
         {
-            _manufacturerService.UpdateManufacturer(manufacturer);
-            return Ok("Manufacturer updated successfully.");
+            var result = await _manufacturerService.UpdateManufacturer(manufacturer);
+            if (result)
+                return NoContent();
+            return NotFound($"Manufacturer with ID {manufacturer.Id} not found.");
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("GetAllManufacturers")]
-        public IActionResult GetAllManufacturers()
+        public async Task<IActionResult> GetAllManufacturers()
         {
-            var manufacturers = _manufacturerService.GetAllManufacturers();
+            var manufacturers = await _manufacturerService.GetAllManufacturers();
             return Ok(manufacturers);
         }
-
     }
 }
