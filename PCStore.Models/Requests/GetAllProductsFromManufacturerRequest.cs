@@ -2,6 +2,6 @@
 {
     public class GetAllProductsFromManufacturerRequest
     {
-        public string ManufacturerId { get; set; }
+        public string ManufacturerId { get; set; } = string.Empty;
     }
 }
