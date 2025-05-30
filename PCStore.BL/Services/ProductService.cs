@@ -17,7 +17,7 @@ namespace PCStore.BL.Services
             _logger = logger;
         }
 
-        public void AddProduct(Product product)
+        public async Task AddProduct(Product product)
         {
             if (product == null)
             {
@@ -29,7 +29,7 @@ namespace PCStore.BL.Services
 
             try
             {
-                _productRepository.AddProduct(product);
+                await _productRepository.AddProduct(product);
                 _logger.LogInformation("Product successfully added");
             }
             catch (Exception ex)
@@ -39,7 +39,7 @@ namespace PCStore.BL.Services
             }
         }
 
-        public bool DeleteProduct(string id)
+        public async Task<bool> DeleteProduct(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -51,16 +51,19 @@ namespace PCStore.BL.Services
 
             try
             {
-                var product = _productRepository.GetProduct(id);
+                var product = await _productRepository.GetProduct(id);
                 if (product == null)
                 {
                     _logger.LogWarning($"Product with ID: {id} not found.");
                     return false;
                 }
 
-                _productRepository.DeleteProduct(id);
-                _logger.LogInformation($"Product with ID: {id} deleted successfully.");
-                return true;
+                var result = await _productRepository.DeleteProduct(id);
+                if (result)
+                {
+                    _logger.LogInformation($"Product with ID: {id} deleted successfully.");
+                }
+                return result;
             }
             catch (Exception ex)
             {
@@ -69,12 +72,12 @@ namespace PCStore.BL.Services
             }
         }
 
-        public List<Product> GetAllProducts()
+        public async Task<List<Product>> GetAllProducts()
         {
             _logger.LogInformation("Retrieving all products.");
             try
             {
-                var products = _productRepository.GetAllProducts();
+                var products = await _productRepository.GetAllProducts();
                 _logger.LogInformation("Retrieved {ProductCount} products for this manufacturer", products.Count);
                 return products;
             }
@@ -85,7 +88,7 @@ namespace PCStore.BL.Services
             }
         }
 
-        public List<Product> GetAllProductsByManufacturer(string manufacturerId)
+        public async Task<List<Product>> GetAllProductsByManufacturer(string manufacturerId)
         {
             if (string.IsNullOrEmpty(manufacturerId))
             {
@@ -96,7 +99,7 @@ namespace PCStore.BL.Services
             _logger.LogInformation("Retrieving products for manufacturer");
             try
             {
-                var products = _productRepository.GetAllProductsByManufacturer(manufacturerId);
+                var products = await _productRepository.GetAllProductsByManufacturer(manufacturerId);
                 _logger.LogInformation("Retrieved products for manufacturer");
                 return products;
             }
@@ -107,7 +110,7 @@ namespace PCStore.BL.Services
             }
         }
 
-        public Product? GetProduct(string id)
+        public async Task<Product?> GetProduct(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -118,7 +121,7 @@ namespace PCStore.BL.Services
             _logger.LogInformation("Retrieving product");
             try
             {
-                var product = _productRepository.GetProduct(id);
+                var product = await _productRepository.GetProduct(id);
                 if (product == null)
                 {
                     _logger.LogWarning("No product found");
@@ -136,7 +139,7 @@ namespace PCStore.BL.Services
             }
         }
 
-        public bool UpdateProduct(Product product)
+        public async Task<bool> UpdateProduct(Product product)
         {
             if (product == null || string.IsNullOrEmpty(product.Id))
             {
@@ -148,14 +151,14 @@ namespace PCStore.BL.Services
 
             try
             {
-                var existingProduct = _productRepository.GetProduct(product.Id);
+                var existingProduct = await _productRepository.GetProduct(product.Id);
                 if (existingProduct == null)
                 {
                     _logger.LogWarning("Product not found for update.");
                     return false;
                 }
 
-                _productRepository.UpdateProduct(product);
+                await _productRepository.UpdateProduct(product);
                 _logger.LogInformation("Product successfully updated.");
                 return true;
             }

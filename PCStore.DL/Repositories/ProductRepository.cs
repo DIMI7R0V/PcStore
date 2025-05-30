@@ -15,12 +15,20 @@ namespace PCStore.DL.Repositories
         public ProductRepository(IOptionsMonitor<MongoDBConfiguration> mongoConfig, ILogger<ProductRepository> logger)
         {
             _logger = logger;
+
+            if (string.IsNullOrEmpty(mongoConfig?.CurrentValue?.ConnectionString) || string.IsNullOrEmpty(mongoConfig?.CurrentValue?.DatabaseName))
+            {
+                _logger.LogError("MongoDb configuration is missing");
+
+                throw new ArgumentNullException("MongoDb configuration is missing");
+            }
+
             var client = new MongoClient(mongoConfig.CurrentValue.ConnectionString);
             var database = client.GetDatabase(mongoConfig.CurrentValue.DatabaseName);
             _products = database.GetCollection<Product>("Products");
         }
 
-        public void AddProduct(Product product)
+        public async Task AddProduct(Product product)
         {
             if (product == null)
             {
@@ -29,10 +37,10 @@ namespace PCStore.DL.Repositories
             }
 
             product.Id = Guid.NewGuid().ToString();
-            _products.InsertOne(product);
+            await _products.InsertOneAsync(product);
         }
 
-        public bool DeleteProduct(string id)
+        public async Task<bool> DeleteProduct(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -40,11 +48,11 @@ namespace PCStore.DL.Repositories
                 return false;
             }
 
-            var result = _products.DeleteOne(p => p.Id == id);
+            var result = await _products.DeleteOneAsync(p => p.Id == id);
             return result.DeletedCount > 0;
         }
 
-        public Product? GetProduct(string id)
+        public async Task<Product?> GetProduct(string id)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -52,15 +60,15 @@ namespace PCStore.DL.Repositories
                 return null;
             }
 
-            return _products.Find(p => p.Id == id).FirstOrDefault();
+            return await _products.Find(p => p.Id == id).FirstOrDefaultAsync();
         }
 
-        public List<Product> GetAllProducts()
+        public async Task<List<Product>> GetAllProducts()
         {
-            return _products.Find(p => true).ToList();
+            return await _products.Find(p => true).ToListAsync();
         }
 
-        public List<Product> GetAllProductsByManufacturer(string manufacturerId)
+        public async Task<List<Product>> GetAllProductsByManufacturer(string manufacturerId)
         {
             if (string.IsNullOrWhiteSpace(manufacturerId))
             {
@@ -68,10 +76,10 @@ namespace PCStore.DL.Repositories
                 return new List<Product>();
             }
 
-            return _products.Find(p => p.ManufacturerId == manufacturerId).ToList();
+            return await _products.Find(p => p.ManufacturerId == manufacturerId).ToListAsync();
         }
 
-        public bool UpdateProduct(Product product)
+        public async Task<bool> UpdateProduct(Product product)
         {
             if (product == null || string.IsNullOrWhiteSpace(product.Id))
             {
@@ -80,7 +88,7 @@ namespace PCStore.DL.Repositories
             }
 
             var filter = Builders<Product>.Filter.Eq(p => p.Id, product.Id);
-            var updateResult = _products.ReplaceOne(filter, product);
+            var updateResult = await _products.ReplaceOneAsync(filter, product);
 
             return updateResult.ModifiedCount > 0;
         }

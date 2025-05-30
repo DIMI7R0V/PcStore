@@ -20,40 +20,41 @@ namespace PCStore.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [HttpGet("GetFullProductView")]
-        public IActionResult GetFullProductView()
+        public async Task<IActionResult> GetFullProductView()
         {
-            
-                var result = _storeService.GetFullInformation();
 
-                if (result == null || !result.Any())
-                {
-                    return NotFound("No products found!");
-                }
+            var result = await _storeService.GetFullInformation();
 
-                return Ok(result);
-            
+            if (result == null || !result.Any())
+            {
+                return NotFound("No products found!");
+            }
+
+            return Ok(result);
+
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("GetAllProductsFromManufacturer")]
-        public IActionResult GetAllProductsFromManufacturer([FromBody] GetAllProductsFromManufacturerRequest request)
+        public async Task<IActionResult> GetAllProductsFromManufacturer([FromBody] GetAllProductsFromManufacturerRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.ManufacturerId))
             {
                 _logger.LogWarning("ManufacturerId cannot be null or empty!");
                 return BadRequest("ManufacturerId cannot be null or empty!");
             }
-            var result = _storeService.GetAllProductsByManufacturer(request);
+
+            var result = await _storeService.GetAllProductsByManufacturer(request);
 
             if (result == null || result.Products == null || !result.Products.Any())
             {
                 _logger.LogWarning("Products from this manufacturer Not Found!");
-                return NotFound($"Products from this manufacturer Not Found!");
+                return NotFound("Products from this manufacturer Not Found!");
             }
 
-            _logger.LogInformation("Products from this manufacturer:");
+            _logger.LogInformation("Products from this manufacturer retrieved.");
             return Ok(result);
         }
     }

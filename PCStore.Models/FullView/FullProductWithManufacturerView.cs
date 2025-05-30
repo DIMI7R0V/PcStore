@@ -4,10 +4,10 @@ namespace PCStore.Models.FullView
 {
     public class FullProductWithManufacturerView
     {
-        public string ManufacturerId { get; set; }
+        public string ManufacturerId { get; set; } = string.Empty;
 
-        public string ManufacturerName { get; set; }
+        public string ManufacturerName { get; set; } = string.Empty;
 
-        public List<Product> Products { get; set; } 
+        public List<Product> Products { get; set; }
     }
 }
